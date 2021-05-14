@@ -1,0 +1,681 @@
+var usenode = 0;
+var newtxt = "";
+if (usenode==1) {
+	var socket = io.connect("http://" + document.domain + ":8000");
+	socket.on("updatetxt", function(msg) {
+		L(msg);
+		if (msg != newtxt && isDefined(getUrlParameter("sync"))) {
+			//to do: sync only if..
+			newtxt = msg;
+			$("#t").val(msg);
+			$("#b").trigger("click");
+		}
+	});
+}
+
+function pad(num, size) {
+	var s = "000000000" + num;
+	return s.substr(s.length-size);
+}
+
+
+var getUrlParameter = function getUrlParameter(sParam) {
+	var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+		sURLVariables = sPageURL.split('&'),
+		sParameterName,
+		i;
+	for (i = 0; i < sURLVariables.length; i++) {
+		sParameterName = sURLVariables[i].split('=');
+
+		if (sParameterName[0] === sParam) {
+			return sParameterName[1] === undefined ? true : sParameterName[1];
+		}
+	}
+};
+
+var justclick = 0;
+$(document).ready(function() {
+
+	$("#t").dblclick(function(){
+		$("#t").val("").focus();
+	});
+	$("#t").keyup(function(e){
+		ontype();
+		if(e.keyCode == 13 || e.keyCode == 10) {
+			searchtxt($("#t").val());
+		}
+	});
+	$("#t").change(function(e){
+		ontype();
+	});
+	$("#b").click(function(){
+		if ($("#t").val() == "") {
+			getDB();
+		}
+		else {
+			searchtxt($("#t").val());
+		}
+	});
+	$("#frm").submit(function( event ) {
+		///searchtxt($("#t").val());
+		event.preventDefault();
+	});
+	$("#qtop").click(function(){
+		window.scrollTo(0, 0);
+		$("#t").val("").focus();
+	});
+
+	$("#t").val("").focus();
+	/// 1 Ha 8:47-49,52   Gen 1:2,5-6,8,10   1 Cro 1:1-3   Ex 15:17,19   Aw 112:2-3   Mar 12:37
+
+	if (isDefined(getUrlParameter("txt"))) {
+		$("#t").val(getUrlParameter("txt"));
+		$("#b").trigger("click");
+	}
+
+
+});
+
+
+
+
+function isDefined(x) {
+	var undefined;
+	return x !== undefined;
+}
+
+function isTextNode(){
+	return( this.nodeType === 3 );
+}
+
+function isNumeric(n) {
+	return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
+String.prototype.splice = function( idx, rem, s ) {
+	return (this.slice(0,idx) + s + this.slice(idx + Math.abs(rem)));
+};
+
+function ontype() {
+	var q = $("#t").val();
+	if (q==" ") { $("#t").val(""); q = ""; }
+	if (q.indexOf(".")>0) {
+		$("#t").val("");
+		return false;
+	}
+	var lastchar = q.charAt(q.length-1);
+	var beforelastchar = q.charAt(q.length-2);
+	q = q.replace("  ", " ");
+	q = q.replace("  ", " ");
+	var q2 = q;
+	if (isNumeric(beforelastchar) && lastchar == " " && q2.indexOf(" ")>0 && q2.indexOf(":")<1 && q2.length>2) {
+		q2 = q2.substring(0, q2.length - 1) + ":";
+	}
+	else if (isNumeric(beforelastchar) && lastchar == " " && q2.indexOf(" ")>0 && q2.indexOf(":")>1 && q2.length>2) {
+		q2 = q2.substring(0, q2.length - 1) + "-";
+	}
+	var lastchars = q.charAt(q.length-2) + q.charAt(q.length-1);
+	if (lastchars=="- ") {
+		q2 = q2.substring(0, q2.length - 2) + ",";
+	}
+	else if (lastchars==", ") {
+		q2 = q2.substring(0, q2.length - 2) + "-";
+	}
+	if (isNumeric(lastchar) && beforelastchar!=" " && !isNumeric(beforelastchar) && q2.length>1 && lastchar!=":" && lastchar!="," && lastchar!="-") {
+		q2 = q2.splice(q2.length-1,0," ");
+	}
+	if (!isNumeric(lastchar) && isNumeric(beforelastchar) & q2.length>1 && lastchar!=":" && lastchar!="," && lastchar!="-") {
+		q2 = q2.splice(q2.length-1,0," ");
+	}
+	q2 = q2.replace(";", ":");
+	q2 = q2.replace(/: /g, ":");
+	q2 = q2.replace(/ :/g, ":");
+	q2 = q2.replace(/ ,/g, ",");
+	q2 = q2.replace(/, /g, ",");
+	q2 = q2.replace(/ -/g, "-");
+	q2 = q2.replace(/- /g, "-");
+	///q2 = toTitleCase(q2);
+	$("#t").val(q2);
+}
+
+function sortNumber(a,b) {
+	return a - b;
+}
+
+function searchtxt(what) {
+if (what=="") {
+	getDB();
+	return false;
+}
+
+if (usenode==1) socket.emit("sendtxt", what);
+
+///Ext.Msg.alert(what);
+var u = "bi12_TG/OEBPS/";
+var uen = "nwt_E/OEBPS/";
+//L("what:" + what);
+
+var whatx = what.split(":");
+var what0 = whatx[0];
+var what1 = whatx[1];
+var what1x = what1.split(",");
+var uniqueverses = [];
+$.each(what1x, function(i, el){
+	if($.inArray(el, uniqueverses) === -1) uniqueverses.push(el);
+});
+what = what0 + ":" + uniqueverses.join();
+L("what2:" + what);
+
+what = what.replace(":,", ":");
+what = what.replace(": ", ":");
+what = what.replace(/: /g, ":");
+what = what.replace(/, /g, ",");
+what = what.replace(/- /g, "-");
+what = what.replace(/ :/g, ":");
+what = what.replace(/ ,/g, ",");
+what = what.replace(/ -/g, "-");
+what = what.replace(/  /g, " ");
+L("what3:" + what);
+$("#t").val(what);
+
+
+var q = what.split(" ");
+if (q.length === 2) {
+	var qpt = "0";
+	var qtitle = toTitleCase(q[0]);
+	var qbk = q[0];
+	var qchve = q[1].split(":");
+}
+if (q.length === 3) {
+	var qpt = q[0];
+	var qtitle = qpt + " " + toTitleCase(q[1]);
+	var qbk = "" + qpt + "" + q[1];
+	var qchve = q[2].split(":");
+}
+var qch = qchve[0];
+var qve = qchve[1];
+var qves = "";
+if (what.indexOf(":") == -1) {
+	qtitle += " " + qchve[0];
+	qch = 1;
+	qve = qchve[0];
+	qves = qchve[0];
+}
+else {
+	qtitle += " " + qchve[0] + ":" + qchve[1];
+	qves = qve;
+}
+if (qve.indexOf(",") > 0) { tmp = qve.split(","); qve = tmp[0]; }
+if (qve.indexOf("-") > 0) { tmp = qve.split("-"); qve = tmp[0]; }
+qbk = qbk.toLowerCase();
+
+
+///alert("qpt:" + qpt);
+///alert("qbk:" + qbk);
+///alert("qchve:" + qchve);
+///alert("qch:" + qch);
+///alert("qve:" + qve);
+
+var u2 = "";
+var u3 = 0;
+var u33 = "";
+
+switch (qbk) {
+case "genesis": case "ge": case "gen": u2 = "05_BI12_.GE"; u3 = 1; break;
+case "exodo": case "exo": case "ex": u2 = "06_BI12_.EX"; u3 = 2; break;
+case "levitico": case "lev": u2 = "07_BI12_.LE"; u3 = 3; break;
+case "bilang": case "bil": u2 = "08_BI12_.NU"; u3 = 4; break;
+case "deuteronomio": case "deu": u2 = "09_BI12_.DE"; u3 = 5; break;
+case "josue": case "jos": u2 = "10_BI12_.JOS"; u3 = 6; break;
+case "hukom": case "huk": u2 = "11_BI12_.JG"; u3 = 7; break;
+case "ruth": case "ru": u2 = "12_BI12_.RU"; u3 = 8; break;
+case "1samuel": case "1sa": case "1sam": u2 = "13_BI12_.1SA"; u3 = 9; break;
+case "2samuel": case "2sa": case "2sam": u2 = "14_BI12_.2SA"; u3 = 10; break;
+case "1hari": case "1ha": case "1hari": u2 = "15_BI12_.1KI"; u3 = 11; break;
+case "2hari": case "2ha": case "2hari": u2 = "16_BI12_.2KI"; u3 = 12; break;
+case "1cronica": case "1cr": case "1cro": u2 = "17_BI12_.1CH"; u3 = 13; break;
+case "2cronica": case "2cr": case "2cro": u2 = "18_BI12_.2CH"; u3 = 14; break;
+case "ezra": case "ezr": u2 = "19_BI12_.EZR"; u3 = 15; break;
+case "nehemias": case "ne": u2 = "20_BI12_.NE"; u3 = 16; break;
+case "esther": case "es": u2 = "21_BI12_.ES"; u3 = 17; break;
+case "job": case "job": u2 = "22_BI12_.JOB"; u3 = 18; break;
+case "awit": case "aw": case "awit": u2 = "23_BI12_.PS"; u3 = 19; break;
+case "kawikaan": case "kaw": u2 = "24_BI12_.PR"; u3 = 20; break;
+case "eclesiastes": case "ec": u2 = "25_BI12_.EC"; u3 = 21; break;
+case "solomon": case "sol": u2 = "26_BI12_.CA"; u3 = 22; break;
+case "isaias": case "isa": u2 = "27_BI12_.ISA"; u3 = 23; break;
+case "jeremias": case "jer": u2 = "28_BI12_.JER"; u3 = 24; break;
+case "panaghoy": case "pan": u2 = "29_BI12_.LA"; u3 = 25; break;
+case "ezekiel": case "eze": u2 = "30_BI12_.EZE"; u3 = 26; break;
+case "daniel": case "dan": u2 = "31_BI12_.DA"; u3 = 27; break;
+case "oseas": case "os": u2 = "32_BI12_.HOS"; u3 = 28; break;
+case "joel": case "joe": case "joel": u2 = "33_BI12_.JOE"; u3 = 29; break;
+case "amos": case "am": case "amos": u2 = "34_BI12_.AM"; u3 = 30; break;
+case "obadias": case "ob": u2 = "35_BI12_.OB"; u3 = 31; break;
+case "jonas": case "jon": u2 = "36_BI12_.JON"; u3 = 32; break;
+case "mikas": case "mik": u2 = "37_BI12_.MIC"; u3 = 33; break;
+case "nahum": case "na": u2 = "38_BI12_.NAH"; u3 = 34; break;
+case "habakuk": case "hab": u2 = "39_BI12_.HAB"; u3 = 35; break;
+case "zefanias": case "zef": u2 = "40_BI12_.ZEP"; u3 = 36; break;
+case "hagai": case "hag": u2 = "41_BI12_.HAG"; u3 = 37; break;
+case "zacarias": case "zac": u2 = "42_BI12_.ZEC"; u3 = 38; break;
+case "malakias": case "mal": u2 = "43_BI12_.MAL"; u3 = 39; break;
+case "mateo": case "mat": u2 = "44_BI12_.MT"; u3 = 40; break;
+case "marcos": case "mar": u2 = "45_BI12_.MR"; u3 = 41; break;
+case "lucas": case "luc": u2 = "46_BI12_.LU"; u3 = 42; break;
+case "juan": case "ju": u2 = "47_BI12_.JOH"; u3 = 43; break;
+case "gawa": case "gaw": case "gawa": u2 = "48_BI12_.AC"; u3 = 44; break;
+case "roma": case "ro": case "roma": u2 = "49_BI12_.RO"; u3 = 45; break;
+case "1corinto": case "1co": case "1cor": u2 = "50_BI12_.1CO"; u3 = 46; break;
+case "2corinto": case "2co": case "2cor": u2 = "51_BI12_.2CO"; u3 = 47; break;
+case "galacia": case "gal": u2 = "52_BI12_.GA"; u3 = 48; break;
+case "efeso": case "efe": u2 = "53_BI12_.EPH"; u3 = 49; break;
+case "filipos": case "fil": u2 = "54_BI12_.PHP"; u3 = 50; break;
+case "colosas": case "col": u2 = "55_BI12_.COL"; u3 = 51; break;
+case "1tesalonica": case "1te": case "1tes": u2 = "56_BI12_.1TH"; u3 = 52; break;
+case "2tesalonica": case "2te": case "2tes": u2 = "57_BI12_.2TH"; u3 = 53; break;
+case "1timoteo": case "1ti": case "1tim": u2 = "58_BI12_.1TI"; u3 = 54; break;
+case "2timoteo": case "2ti": case "2tim": u2 = "59_BI12_.2TI"; u3 = 55; break;
+case "tito": case "tit": u2 = "60_BI12_.TIT"; u3 = 56; break;
+case "filemon": case "flm": u2 = "61_BI12_.PHM"; u3 = 57; break;
+case "hebreo": case "heb": u2 = "62_BI12_.HEB"; u3 = 58; break;
+case "santiago": case "san": u2 = "63_BI12_.JAS"; u3 = 59; break;
+case "1pedro": case "1pe": case "1ped": u2 = "64_BI12_.1PE"; u3 = 60; break;
+case "2pedro": case "2pe": case "2ped": u2 = "65_BI12_.2PE"; u3 = 61; break;
+case "1juan": case "1ju": u2 = "66_BI12_.1JO"; u3 = 62; break;
+case "2juan": case "2ju": u2 = "67_BI12_.2JO"; u3 = 63; break;
+case "3juan": case "3ju": u2 = "68_BI12_.3JO"; u3 = 64; break;
+case "judas": case "jud": u2 = "69_BI12_.JUD"; u3 = 65; break;
+case "apocalipsis": case "apo": case "apoc": u2 = "70_BI12_.RE"; u3 = 66; break;
+}
+
+u33 = "10010611" + pad(u3+4,2);
+
+L("qve:", qve);
+if (qch == 1) {
+	L("a");
+	u2 += ".htm#chapter" + qch + "_verse" + qve;
+	u33 += ".htm";
+}
+else {
+	if (what.indexOf(":") == -1) {
+		L("b");
+		u2 += ".htm#chapter" + qch + "_verse" + qve;
+		u33 += "-split" + qch + ".htm";
+	}
+	else {
+		if (qve != "") {
+			L("c");
+			u2 += "-split" + qch + ".htm#chapter" + qch + "_verse" + qve;
+			u33 += "-split" + qch + ".htm";
+		}
+		else {
+			L("d");
+			u2 += "-split" + qch + ".htm#chapter" + qch;
+			u33 += "-split" + qch + ".htm";
+		}
+	}
+}
+
+/// var result = "foo baz".splice(4, 0, "bar "); /// foor bar baz
+String.prototype.splice = function(idx, rem, str) {
+	return this.slice(0, idx) + str + this.slice(idx + Math.abs(rem));
+};
+
+$("#q").html("Loading...");
+// $(".en").html("Loading...");
+
+
+$.get(u+u2, function(data){
+	///console.log(1);
+}).done(function(data) {
+	///console.log(2);
+	///var qq = $(data).find("body").html();
+	var qq = data.toString();
+	var qqq = qq.split("<body>");
+	qq = qqq[1];
+	qqq = qq.split("</body>");
+	qq = qqq[0];
+	///console.log(qq);
+	//alert(qq);
+
+	$("#q").html(qq);
+	$("#q a[id^='page']").remove();
+	$(".ss").remove();
+	var tmp2 = rangeExpand(qves);
+	tmp2.forEach(function(iii) {
+		hilyt(eval(qch),eval(iii));
+	});
+	$("sup").click(function() {
+		var tmpt = $("#t").val();
+		if (tmpt == "") { $("#t").val($("#qtitle>b").html()); tmpt = $("#qtitle>b").html(); }
+		$("#t").val(tmpt.replace(":,",':'));
+		$("#t").val(tmpt + "," + parseInt($(this).html()));
+		justclick = parseInt($(this).html());
+		searchtxt($("#t").val());
+	});
+	$(".w_ch>b").click(function() {
+		var tmpt = $("#t").val();
+		if (tmpt == "") { $("#t").val($("#qtitle>b").html()); tmpt = $("#qtitle>b").html(); }
+		$("#t").val(tmpt.replace(":,",':'));
+		$("#t").val(tmpt + ",1");
+		justclick = 1;
+		searchtxt($("#t").val());
+		///$(this).toggleClass("hilyt2");
+	});
+	if (qve!="") {
+		L(1);
+		if (justclick != 0) {
+			location.replace("?txt=" + $("#t").val() + (isDefined(getUrlParameter("sync")) ? "&sync" : "") +  "#chapter" + eval(qch) + "_verse" + justclick);
+			justclick = 0;
+			L("aa");
+		}
+		else {
+			location.replace("?txt=" + $("#t").val() + (isDefined(getUrlParameter("sync")) ? "&sync" : "") +  "#chapter" + eval(qch) + "_verse" + eval(qve));
+			L("bb");
+		}
+		window.history.pushState({},"", "?txt=" + $("#t").val() + (isDefined(getUrlParameter("sync")) ? "&sync" : "") + "#chapter" + eval(qch) + "_verse" + eval(qve));
+	}
+	else {
+		L(2, qch);
+		L(("#chapter" + eval(qch)));
+		if (justclick == 1) {
+			justclick = 0;
+			L("cc");
+		}
+		else {
+			location.replace("#chapter" + eval(qch));
+			L("dd");
+		}
+		window.history.pushState({},"", "?txt=" + $("#t").val() + (isDefined(getUrlParameter("sync")) ? "&sync" : "") + "#chapter" + eval(qch));
+	}
+
+});
+
+
+L(uen+u33);
+$.get(uen+u33, function(data){
+}).done(function(data) {
+	///var qq = new XMLSerializer().serializeToString(data);
+	var qq = data.toString();
+	var qqq = qq.split("<body");
+	qq = qqq[1];
+	qqq = qq.split("</body>");
+	qq = "<br style='display:none' " + qqq[0] + "<br /><br /><br /><br /><br />";
+
+	// $(".en").html(qq);
+	// $(".en a[id^='page']").remove();
+	// $(".en .w_navigation").remove();
+	$(".ss").remove();
+	var tmp2 = rangeExpand(qves);
+	tmp2.forEach(function(iii) {
+		L(iii);
+		hilyt(eval(qch),eval(iii));
+	});
+
+	setTimeout(function() {
+		if (qve > 0) $('.en').scrollTop($(".en #chapter"+qch+"_verse"+qve).position().top - $('.en').position().top - 5);
+	}
+	,200);
+
+
+});
+
+
+
+
+
+$("#qtitle").html("<b>" + qtitle + "</b><hr>");
+
+
+var d = new Date();
+var dt = "";
+dt = d.toISOString();
+$.jStorage.set(dt, qtitle);
+
+
+/// searchtxt }
+}
+
+
+function hilyt(c,v,bg) {
+	bg = (typeof bg === 'undefined') ? '' : bg;
+	/// <a id="chapter1_verse9"></a>
+	$("a#chapter" + c + "_verse" + v).next().find("sup").addClass("hilyt");
+	$("a#chapter" + c + "_verse" + v).next().find("b").addClass("hilyt");
+	var q = $("#q").html();
+	var s = q.indexOf('chapter' + c + '_verse' + v + '">');
+	if (s==-1) return false;
+	var s1 = q.indexOf('</span>', s);
+	if (s1<1) {
+		s1 = q.indexOf('</b>', s);
+		q = q.splice(s1+4,0,"[[[");
+	}
+	else {
+		s1 = q.indexOf('</span>', s);
+		q = q.splice(s1+7,0,"[[[");
+	}
+	var s2 = q.indexOf('<', s1+8);
+	q = q.splice(s2,0,"]]]");
+	var s9 = 0;
+	var s3 = 0;
+	for (i=1;i<=5;i++) {
+		s9 = q.indexOf('chapter' + c + '_verse' + (v+1) + '">');
+		s3 = q.indexOf('class="sp"', s2);
+		//L(c+":"+v+" = "+s3+","+s9);
+		if ((s3>0 && s3<s9) || (s3>0 && s9==-1)) {
+			//L(c+":"+v+" = " + q.substring(s3+11,s3+25));
+			q = q.splice(s3+11,0,"[[[");
+			s2 = q.indexOf('<', s3+11);
+			q = q.splice(s2,0,"]]]");
+			s2 = s3+11;
+		}
+	}
+	//L("--");
+	var s2 = q.indexOf('<', s1+8);
+	for (i=1;i<=5;i++) {
+		s9 = q.indexOf('chapter' + c + '_verse' + (v+1) + '">');
+		s3 = q.indexOf('class="sz"', s2);
+		s4 = q.indexOf('class="sb"', s2);
+		if (s3==-1) s3=s4;
+		///L(c+":"+v+" = "+s3+","+s4+","+s9);
+		if ((s3>0 && s3<s9) || (s3>0 && s9==-1)) {
+			//L(c+":"+v+" = " + q.substring(s3+11,s3+25));
+			q = q.splice(s3+11,0,"[[[");
+			s2 = q.indexOf('<', s3+11);
+			q = q.splice(s2,0,"]]]");
+			s2 = s3+11;
+		}
+	}
+	//L("==");
+	q = q.replace(/ \]\]\]/g,"]]]");
+	q = q.replace(/\[\[\[\[\[\[/g,"[[[");
+	q = q.replace(/\]\]\]\]\]\]/g,"]]]");
+	q = q.replace(/\[\[\[/g,"<u>");
+	q = q.replace(/\]\]\]/g,"</u> ");
+	q = q.replace(/<u\>\<\/u\>/g,"");
+	if (bg === '') $("#q").html(q);
+}
+
+
+
+function getTimestamp(str) {
+	var d = str.match(/\d+/g); // extract date parts
+	return +new Date(d[0], d[1] - 1, d[2], d[3], d[4], d[5]); // build Date object
+}
+
+function toTitleCase(str) {
+	///return str;
+	return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+}
+
+function rangeExpand(what) {
+	var tmpall=new Array();
+	var tmp0 = what.split(",");
+	var ii = 0;
+	tmp0.forEach(function(i) {
+		if (i.indexOf("-")>0) {
+			tmp1 = i.split("-");
+			for (ii=parseInt(tmp1[0]);ii<=parseInt(tmp1[1]);ii++) {
+				tmpall.push(ii);
+			}
+		}
+		else {
+			tmpall.push(i);
+		}
+	});	
+	return tmpall;
+}
+
+function implode (glue, pieces) {
+	// From: http://phpjs.org/functions
+	// +   original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+	// +   improved by: Waldo Malqui Silva
+	// +   improved by: Itsacon (http://www.itsacon.net/)
+	// +   bugfixed by: Brett Zamir (http://brett-zamir.me)
+	// *     example 1: implode(' ', ['Kevin', 'van', 'Zonneveld']);
+	// *     returns 1: 'Kevin van Zonneveld'
+	// *     example 2: implode(' ', {first:'Kevin', last: 'van Zonneveld'});
+	// *     returns 2: 'Kevin van Zonneveld'
+	var i = '',
+	retVal = '',
+	tGlue = '';
+	if (arguments.length === 1) {
+	pieces = glue;
+	glue = '';
+	}
+	if (typeof pieces === 'object') {
+	if (Object.prototype.toString.call(pieces) === '[object Array]') {
+		return pieces.join(glue);
+	}
+	for (i in pieces) {
+		retVal += tGlue + pieces[i];
+		tGlue = glue;
+	}
+	return retVal;
+	}
+	return pieces;
+}
+
+var range = function(start, end, step) {
+	var range = [];
+	var typeofStart = typeof start;
+	var typeofEnd = typeof end;
+
+	if (step === 0) {
+		throw TypeError("Step cannot be zero.");
+	}
+
+	if (typeofStart == "undefined" || typeofEnd == "undefined") {
+		throw TypeError("Must pass start and end arguments.");
+	} else if (typeofStart != typeofEnd) {
+		throw TypeError("Start and end arguments must be of same type.");
+	}
+
+	typeof step == "undefined" && (step = 1);
+
+	if (end < start) {
+		step = -step;
+	}
+
+	if (typeofStart == "number") {
+
+		while (step > 0 ? end >= start : end <= start) {
+			range.push(start);
+			start += step;
+		}
+
+	} else if (typeofStart == "string") {
+
+		if (start.length != 1 || end.length != 1) {
+			throw TypeError("Only strings with one character are supported.");
+		}
+
+		start = start.charCodeAt(0);
+		end = end.charCodeAt(0);
+
+		while (step > 0 ? end >= start : end <= start) {
+			range.push(String.fromCharCode(start));
+			start += step;
+		}
+
+	} else {
+		throw TypeError("Only string and number types are supported");
+	}
+
+	return range;
+
+}
+
+
+
+function getDB() {
+	var dbSize = ($.jStorage.storageSize()/1024);
+	dbSize = dbSize + "Kb";
+	var index = $.jStorage.index();
+	$("#qtitle").html("");
+	$("#q").html("");
+	$.each(index, function( key, value ) {
+		$("#q").append("<a class='a' href='#' onclick='$(\"#t\").val(\"" + $.jStorage.get(value) + "\");searchtxt(\"" + $.jStorage.get(value) + "\");'>" + $.jStorage.get(value) + "</a> ");
+	});
+	$("#q").append("<a class='a f' href='#' onclick='$.jStorage.flush();$(\"#q\").html(\"\");'>CLEAR</a>");
+}
+
+
+
+function show(what) {
+	$("#t").val(what);
+	L("what show:" + what);
+	searchtxt($("#t").val());
+}
+
+
+
+function L(what) {
+	console.log(what);
+}
+
+
+
+
+// document.addEventListener('touchstart', handleTouchStart, false);        
+// document.addEventListener('touchmove', handleTouchMove, false);
+
+var xDown = null;                                                        
+var yDown = null;                                                        
+
+function handleTouchStart(evt) {                                         
+		xDown = evt.touches[0].clientX;                                      
+		yDown = evt.touches[0].clientY;                                      
+};                                                
+
+function handleTouchMove(evt) {
+		if ( ! xDown || ! yDown ) {
+				return;
+		}
+
+		var xUp = evt.touches[0].clientX;                                    
+		var yUp = evt.touches[0].clientY;
+
+		var xDiff = xDown - xUp;
+		var yDiff = yDown - yUp;
+
+		if ( Math.abs( xDiff ) > Math.abs( yDiff ) ) {/*most significant*/
+				if ( xDiff > 0 ) {
+					$(".en").toggle();
+					$("#q").toggle();
+				} else {
+					$(".en").toggle();
+					$("#q").toggle();
+				}                       
+		} else {
+				if ( yDiff > 0 ) {
+						/* up swipe */ 
+				} else { 
+						/* down swipe */
+				}                                                                 
+		}
+		/* reset values */
+		xDown = null;
+		yDown = null;                                             
+};

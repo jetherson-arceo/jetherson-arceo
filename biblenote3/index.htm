@@ -1,0 +1,54 @@
+<!doctype html>
+<html class="no-js" lang="">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="x-ua-compatible" content="ie=edge">
+		<title>Jet's Bible Note v3</title>
+		<meta name="description" content="">
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+		<meta name="theme-color" content="#000" />
+		<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+		<link rel="stylesheet" href="css/normalize.css">
+		<link rel="stylesheet" href="css/main.css">
+		<!---link rel="stylesheet" href="css/white.css"--->
+		<script type="text/javascript">
+			if (window.location.href.indexOf("white")>0) {
+				var file = location.pathname.split( "/" ).pop();
+				
+				var link = document.createElement( "link" );
+				link.href = file.substr( 0, file.lastIndexOf( "." ) ) + "css/white.css";
+				link.type = "text/css";
+				link.rel = "stylesheet";
+				link.media = "screen,print";
+				
+				document.getElementsByTagName( "head" )[0].appendChild( link );
+			}
+		</script>
+		<!--script src="http://jetherson.com:8000/socket.io/socket.io.js"></script-->
+		<!-- <script src="js/vendor/modernizr-2.8.3.min.js"></script> -->
+	</head>
+	<body>
+		<!-- <script type="text/javascript" src="cordova.js"></script> -->
+		<div class="tl">
+			<form id="frm">
+			<input type="text" name="t" id="t" placeholder="Aw 83:18" class="t" value="">
+			<!--1 Ha 8:47-49,52   Gen 1:2,5-6,8,10   1 Cro 1:1-3   Ex 15:17,19   Aw 112:2-3   Mar 12:37    -->
+			<input type="button" name="b" id="b" value="Search" class="b">
+			</form>
+			<div id="qtitle"></div>
+			<div id="q"></div>
+			<div class="en"></div>
+		</div>
+		
+		<div id="qtop">TOP</div>
+
+		<script src="js/vendor/jquery-3.0.0.min.js"></script>
+		<script src="js/plugins.js"></script>
+		<script src="js/main.js"></script>
+
+
+
+
+	</body>
+</html>

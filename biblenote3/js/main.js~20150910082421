@@ -1,0 +1,522 @@
+
+
+$(document).ready(function() {
+
+	$("#t").dblclick(function(){
+		$("#t").val("").focus();
+	});
+	$("#t").keyup(function(e){
+		ontype();
+		if(e.keyCode == 13 || e.keyCode == 10) {
+			searchtxt($("#t").val());
+		}
+	});
+	$("#b").click(function(){
+		if ($("#t").val() == "") {
+			getDB();
+		}
+		else {
+			searchtxt($("#t").val());
+		}
+	});
+	$("#frm").submit(function( event ) {
+		///searchtxt($("#t").val());
+		event.preventDefault();
+	});
+	$("#qtop").click(function(){
+		window.scrollTo(0, 0);
+		$("#t").val("").focus();
+	});
+
+});
+
+function isTextNode(){
+	return( this.nodeType === 3 );
+}
+
+function isNumeric(n) {
+	return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
+String.prototype.splice = function( idx, rem, s ) {
+    return (this.slice(0,idx) + s + this.slice(idx + Math.abs(rem)));
+};
+
+function ontype() {
+	var q = $("#t").val();
+	var lastchar = q.charAt(q.length-1);
+	var beforelastchar = q.charAt(q.length-2);
+	q = q.replace("  ", " ");
+	q = q.replace("  ", " ");
+	var q2 = q;
+	///console.log(beforelastchar, lastchar);
+	if (isNumeric(beforelastchar) && lastchar == " " && q2.indexOf(" ")>0 && q2.indexOf(":")<1 && q2.length>2) {
+		q2 = q2.substring(0, q2.length - 1) + ":";
+	}
+	else if (isNumeric(beforelastchar) && lastchar == " " && q2.indexOf(" ")>0 && q2.indexOf(":")>1 && q2.length>2) {
+		q2 = q2.substring(0, q2.length - 1) + "-";
+	}
+	if (isNumeric(lastchar) && beforelastchar!=" " && !isNumeric(beforelastchar) && q2.length>1 && lastchar!=":" && lastchar!="," && lastchar!="-") {
+		///console.log("*");
+		q2 = q2.splice(q2.length-1,0," ");
+	}
+	if (!isNumeric(lastchar) && isNumeric(beforelastchar) & q2.length>1 && lastchar!=":" && lastchar!="," && lastchar!="-") {
+		///console.log("^");
+		q2 = q2.splice(q2.length-1,0," ");
+	}
+	q2 = q2.replace(";", ":");
+	q2 = q2.replace(/: /g, ":");
+	q2 = q2.replace(/ :/g, ":");
+	q2 = q2.replace(/ ,/g, ",");
+	q2 = q2.replace(/, /g, ",");
+	q2 = q2.replace(/ -/g, "-");
+	q2 = q2.replace(/- /g, "-");
+	q2 = toTitleCase(q2);
+	$("#t").val(q2);
+}
+
+function searchtxt(what) {
+if (what=="") {
+	getDB();
+	return false;
+}
+	///Ext.Msg.alert(what);
+	var u = "bi12_TG/OEBPS/";
+	
+	what = what.replace(": ", ":");
+	what = what.replace(/: /g, ":");
+	what = what.replace(/, /g, ",");
+	what = what.replace(/- /g, "-");
+	what = what.replace(/ :/g, ":");
+	what = what.replace(/ ,/g, ",");
+	what = what.replace(/ -/g, "-");
+	what = what.replace(/  /g, " ");
+	var q = what.split(" ");
+	if (q.length == 2) {
+		var qpt = "0";
+		var qtitle = toTitleCase(q[0]);
+		var qbk = q[0];
+		var qchve = q[1].split(":");
+	}
+	if (q.length === 3) {
+		var qpt = q[0];
+		var qtitle = qpt + " " + toTitleCase(q[1]);
+		var qbk = "" + qpt + "" + q[1];
+		var qchve = q[2].split(":");
+	}
+	var qch = qchve[0];
+	var qve = qchve[1];
+	var qves = "";
+	if (what.indexOf(":") == -1) {
+		qtitle += " " + qchve[0];
+		qch = 1;
+		qve = qchve[0];
+		qves = qchve[0];
+	}
+	else {
+		qtitle += " " + qchve[0] + ":" + qchve[1];
+		qves = qve;
+	}
+	if (qve.indexOf(",") > 0) { tmp = qve.split(","); qve = tmp[0]; }
+	if (qve.indexOf("-") > 0) { tmp = qve.split("-"); qve = tmp[0]; }
+	qbk = qbk.toLowerCase();
+	
+	
+	///alert("qpt:" + qpt);
+	///alert("qbk:" + qbk);
+	///alert("qchve:" + qchve);
+	///alert("qch:" + qch);
+	///alert("qve:" + qve);
+
+	var u2 = "";
+
+switch (qbk) {
+case "ge":
+case "gen":
+	u2 = "05_BI12_.GE"; break;
+case "exo":
+case "ex":
+	u2 = "06_BI12_.EX"; break;
+case "lev":
+	u2 = "07_BI12_.LE"; break;
+case "bil":
+	u2 = "08_BI12_.NU"; break;
+case "deu":
+	u2 = "09_BI12_.DE"; break;
+case "jos":
+	u2 = "10_BI12_.JOS"; break;
+case "huk":
+	u2 = "11_BI12_.JG"; break;
+case "ru":
+	u2 = "12_BI12_.RU"; break;
+case "1sa":
+case "1sam":
+	u2 = "13_BI12_.1SA"; break;
+case "2sa":
+case "2sam":
+	u2 = "14_BI12_.2SA"; break;
+case "1ha":
+case "1hari":
+	u2 = "15_BI12_.1KI"; break;
+case "2ha":
+case "2hari":
+	u2 = "16_BI12_.2KI"; break;
+case "1cr":
+case "1cro":
+	u2 = "17_BI12_.1CH"; break;
+case "2cr":
+case "2cro":
+	u2 = "18_BI12_.2CH"; break;
+case "ezr":
+	u2 = "19_BI12_.EZR"; break;
+case "ne":
+	u2 = "20_BI12_.NE"; break;
+case "es":
+	u2 = "21_BI12_.ES"; break;
+case "job":
+	u2 = "22_BI12_.JOB"; break;
+case "aw":
+case "awit":
+	u2 = "23_BI12_.PS"; break;
+case "kaw":
+	u2 = "24_BI12_.PR"; break;
+case "ec":
+	u2 = "25_BI12_.EC"; break;
+case "sol":
+	u2 = "26_BI12_.CA"; break;
+case "isa":
+	u2 = "27_BI12_.ISA"; break;
+case "jer":
+	u2 = "28_BI12_.JER"; break;
+case "pan":
+	u2 = "29_BI12_.LA"; break;
+case "eze":
+	u2 = "30_BI12_.EZE"; break;
+case "dan":
+	u2 = "31_BI12_.DA"; break;
+case "os":
+	u2 = "32_BI12_.HOS"; break;
+case "joe":
+case "joel":
+	u2 = "33_BI12_.JOE"; break;
+case "am":
+case "amos":
+	u2 = "34_BI12_.AM"; break;
+case "ob":
+	u2 = "35_BI12_.OB"; break;
+case "jon":
+	u2 = "36_BI12_.JON"; break;
+case "mik":
+	u2 = "37_BI12_.MIC"; break;
+case "na":
+	u2 = "38_BI12_.NAH"; break;
+case "hab":
+	u2 = "39_BI12_.HAB"; break;
+case "zef":
+	u2 = "40_BI12_.ZEP"; break;
+case "hag":
+	u2 = "41_BI12_.HAG"; break;
+case "zac":
+	u2 = "42_BI12_.ZEC"; break;
+case "mal":
+	u2 = "43_BI12_.MAL"; break;
+case "mat":
+	u2 = "44_BI12_.MT"; break;
+case "mar":
+	u2 = "45_BI12_.MR"; break;
+case "luc":
+	u2 = "46_BI12_.LU"; break;
+case "ju":
+	u2 = "47_BI12_.JOH"; break;
+case "gaw":
+case "gawa":
+	u2 = "48_BI12_.AC"; break;
+case "ro":
+case "roma":
+	u2 = "49_BI12_.RO"; break;
+case "1co":
+case "1cor":
+	u2 = "50_BI12_.1CO"; break;
+case "2co":
+case "2cor":
+	u2 = "51_BI12_.2CO"; break;
+case "gal":
+	u2 = "52_BI12_.GA"; break;
+case "efe":
+	u2 = "53_BI12_.EPH"; break;
+case "fil":
+	u2 = "54_BI12_.PHP"; break;
+case "col":
+	u2 = "55_BI12_.COL"; break;
+case "1te":
+case "1tes":
+	u2 = "56_BI12_.1TH"; break;
+case "2te":
+case "2tes":
+	u2 = "57_BI12_.2TH"; break;
+case "1ti":
+case "1tim":
+	u2 = "58_BI12_.1TI"; break;
+case "2ti":
+case "2tim":
+	u2 = "59_BI12_.2TI"; break;
+case "tit":
+	u2 = "60_BI12_.TIT"; break;
+case "flm":
+	u2 = "61_BI12_.PHM"; break;
+case "heb":
+	u2 = "62_BI12_.HEB"; break;
+case "san":
+	u2 = "63_BI12_.JAS"; break;
+case "1pe":
+case "1ped":
+	u2 = "64_BI12_.1PE"; break;
+case "2pe":
+case "2ped":
+	u2 = "65_BI12_.2PE"; break;
+case "1ju":
+	u2 = "66_BI12_.1JO"; break;
+case "2ju":
+	u2 = "67_BI12_.2JO"; break;
+case "3ju":
+	u2 = "68_BI12_.3JO"; break;
+case "jud":
+	u2 = "69_BI12_.JUD"; break;
+case "apo":
+case "apoc":
+	u2 = "70_BI12_.RE"; break;
+}
+
+if (qch == 1) {
+	u2 += ".htm#chapter" + qch + "_verse" + qve;
+}
+else {
+	if (what.indexOf(":") == -1) {
+		u2 += ".htm#chapter" + qch + "_verse" + qve;
+	}
+	else {
+		u2 += "-split" + qch + ".htm#chapter" + qch + "_verse" + qve;
+	}
+}
+
+$("#q").html("Loading...");
+$.get(u+u2, function(data){
+	///console.log(1);
+}).done(function(data) {
+	///console.log(2);
+	///var qq = $(data).find("body").html();
+	var qq = data.toString();
+	var qqq = qq.split("<body>");
+	qq = qqq[1];
+	qqq = qq.split("</body>");
+	qq = qqq[0];
+	///console.log(qq);
+	//alert(qq);
+
+	$("#q").html(qq);
+			///$(".st, .ss, .sb, .sl, .sz, .sw, .sp, .w_biblebookname").hide();
+			$("a#chapter" + eval(qch) + "_verse" + eval(qve)).parent().show();
+			$("a#chapter" + eval(qch) + "_verse" + eval(qve)).parent().next().show();
+			$("a#chapter" + eval(qch) + "_verse" + eval(qve)).parent().next().next().show();
+			$("a#chapter" + eval(qch) + "_verse" + eval(qve)).parent().next().next().next().show();
+			$("a#chapter" + eval(qch) + "_verse" + eval(qve)).parent().next().next().next().next().show();
+			$("a#chapter" + eval(qch) + "_verse" + eval(qve)).parent().next().next().next().next().next().show();
+			$("a#chapter" + eval(qch) + "_verse" + eval(qve)).parent().next().next().next().next().next().next().show();
+			$("a#chapter" + eval(qch) + "_verse" + eval(qve)).parent().next().next().next().next().next().next().next().show();
+			$("a#chapter" + eval(qch) + "_verse" + eval(qve)).next().addClass("hilyt");
+			
+			var tmp2 = rangeExpand(qves);
+			tmp2.forEach(function(iii) {
+				$("a#chapter" + eval(qch) + "_verse" + eval(iii)).parent().show();
+				$("a#chapter" + eval(qch) + "_verse" + eval(iii)).parent().next().show();
+				$("a#chapter" + eval(qch) + "_verse" + eval(iii)).parent().next().next().show();
+				$("a#chapter" + eval(qch) + "_verse" + eval(iii)).parent().next().next().next().show();
+				$("a#chapter" + eval(qch) + "_verse" + eval(iii)).parent().next().next().next().next().show();
+				$("a#chapter" + eval(qch) + "_verse" + eval(iii)).parent().next().next().next().next().next().show();
+				$("a#chapter" + eval(qch) + "_verse" + eval(iii)).parent().next().next().next().next().next().next().show();
+				$("a#chapter" + eval(qch) + "_verse" + eval(iii)).next().addClass("hilyt");
+			});
+	location.replace("#chapter" + eval(qch) + "_verse" + eval(qve));
+	///setTimeout('location.replace("#chapter" + ' + eval(qch) + ' + "_verse" + ' + eval(qve) + ');',1000);});
+});
+
+
+
+
+
+$("#qtitle").html("<b>" + qtitle + "</b><hr>");
+
+/***+++var db = openDatabase('jetbiblenote2', '2.0', 'Jet Bible Note v2', 2 * 1024 * 1024);
+var d = new Date();
+db.transaction(function (tx) {  
+	tx.executeSql('CREATE TABLE IF NOT EXISTS logs (dt, txt, txtfull)');
+	$(".x-innerhtml p").append("&nbsp;");
+	var visibletext = $(".x-innerhtml p:visible").not("sup").not("i").not("b").text();
+	visibletext = visibletext.replace(qtitle, "");
+	tx.executeSql('INSERT INTO logs (dt,txt,txtfull) VALUES (?,?,?)',[d.toISOString(), qtitle, '']);
+});+++***/
+
+var d = new Date();
+var dt = "";
+dt = d.toISOString();
+$.jStorage.set(dt, qtitle);
+
+
+
+}
+
+function getTimestamp(str) {
+	var d = str.match(/\d+/g); // extract date parts
+	return +new Date(d[0], d[1] - 1, d[2], d[3], d[4], d[5]); // build Date object
+}
+
+function toTitleCase(str) {
+	return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+}
+
+function rangeExpand(what) {
+	var tmpall=new Array();
+	var tmp0 = what.split(",");
+	var ii = 0;
+	tmp0.forEach(function(i) {
+		if (i.indexOf("-")>0) {
+			tmp1 = i.split("-");
+			for (ii=parseInt(tmp1[0]);ii<=parseInt(tmp1[1]);ii++) {
+				tmpall.push(ii);
+			}
+		}
+		else {
+			tmpall.push(i);
+		}
+	});	
+	return tmpall;
+}
+
+function implode (glue, pieces) {
+  // From: http://phpjs.org/functions
+  // +   original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+  // +   improved by: Waldo Malqui Silva
+  // +   improved by: Itsacon (http://www.itsacon.net/)
+  // +   bugfixed by: Brett Zamir (http://brett-zamir.me)
+  // *     example 1: implode(' ', ['Kevin', 'van', 'Zonneveld']);
+  // *     returns 1: 'Kevin van Zonneveld'
+  // *     example 2: implode(' ', {first:'Kevin', last: 'van Zonneveld'});
+  // *     returns 2: 'Kevin van Zonneveld'
+  var i = '',
+    retVal = '',
+    tGlue = '';
+  if (arguments.length === 1) {
+    pieces = glue;
+    glue = '';
+  }
+  if (typeof pieces === 'object') {
+    if (Object.prototype.toString.call(pieces) === '[object Array]') {
+      return pieces.join(glue);
+    }
+    for (i in pieces) {
+      retVal += tGlue + pieces[i];
+      tGlue = glue;
+    }
+    return retVal;
+  }
+  return pieces;
+}
+
+var range = function(start, end, step) {
+    var range = [];
+    var typeofStart = typeof start;
+    var typeofEnd = typeof end;
+
+    if (step === 0) {
+        throw TypeError("Step cannot be zero.");
+    }
+
+    if (typeofStart == "undefined" || typeofEnd == "undefined") {
+        throw TypeError("Must pass start and end arguments.");
+    } else if (typeofStart != typeofEnd) {
+        throw TypeError("Start and end arguments must be of same type.");
+    }
+
+    typeof step == "undefined" && (step = 1);
+
+    if (end < start) {
+        step = -step;
+    }
+
+    if (typeofStart == "number") {
+
+        while (step > 0 ? end >= start : end <= start) {
+            range.push(start);
+            start += step;
+        }
+
+    } else if (typeofStart == "string") {
+
+        if (start.length != 1 || end.length != 1) {
+            throw TypeError("Only strings with one character are supported.");
+        }
+
+        start = start.charCodeAt(0);
+        end = end.charCodeAt(0);
+
+        while (step > 0 ? end >= start : end <= start) {
+            range.push(String.fromCharCode(start));
+            start += step;
+        }
+
+    } else {
+        throw TypeError("Only string and number types are supported");
+    }
+
+    return range;
+
+}
+
+/***+++function getDB() {
+	var db = openDatabase('jetbiblenote2', '2.0', 'Jet Bible Note v2', 2 * 1024 * 1024);
+	var msg;
+	var tmp4 = "";
+	db.transaction(function (tx) {
+		tx.executeSql('SELECT * FROM logs', [], function (tx, results) {
+			var len = results.rows.length, i;
+			for (i = 0; i < len; i++) {
+				tmp4 += "<a class='saved' href='##' onclick='show(\"" + results.rows.item(i).txt + "\");return false;'>" + results.rows.item(i).txt + "</a>";
+			}
+			tmp4 += "<a class='saved' href='##' onclick='clearmem();' style='color:red !important;border-color:red !important;'>CLEAR</a>";
+			$("#q").html("<div style='padding:0;font-size:50%;'>" + tmp4 + "</div>");
+			$("#qtitle").html("");
+		}, null);
+	});
+}+++***/
+
+
+function getDB() {
+	var dbSize = ($.jStorage.storageSize()/1024);
+	dbSize = dbSize + "Kb";
+	var index = $.jStorage.index();
+	$("#qtitle").html("");
+	$("#q").html("");
+	$.each(index, function( key, value ) {
+		$("#q").append("<a class='a' href='#' onclick='$(\"#t\").val(\"" + $.jStorage.get(value) + "\");searchtxt(\"" + $.jStorage.get(value) + "\");'>" + $.jStorage.get(value) + "</a> ");
+	});
+	$("#q").append("<a class='a f' href='#' onclick='$.jStorage.flush();$(\"#q\").html(\"\");'>CLEAR</a>");
+}
+
+
+
+function show(what) {
+	$("#t").val(what);
+	searchtxt($("#t").val());
+}
+
+function clearmem() {
+	var db = openDatabase('jetbiblenote2', '2.0', 'Jet Bible Note v2', 2 * 1024 * 1024);
+	var msg;
+	var tmp4 = "";
+	db.transaction(function (tx) {
+		tx.executeSql('DELETE FROM logs', [], function (tx, results) { }, null);
+	});
+	$("#q").html("");
+	$("#qtitle").html("");
+}
+
