@@ -1,0 +1,42 @@
+{
+	"name": "Jetherson Arceo - jetherson.com",
+	"short_name": "jetherson.com",
+	"start_url": "/jet/index.htm",
+	"display": "standalone",
+	"background_color": "#FFFFFF",
+	"description": "Jetherson Arceo is a Filipino programmer and full-stack web developer.",
+	"theme_color": "#005500",
+	"lang": "en-US",
+	"icons": [
+		{
+			"src": "https://jetherson.com/jet/jetherson-arceo-128.png",
+			"sizes": "128x128",
+			"type": "image/png"
+		},
+		{
+			"src": "https://jetherson.com/jet/jetherson-arceo-144.png",
+			"sizes": "144x144",
+			"type": "image/png"
+		},
+		{
+			"src": "https://jetherson.com/jet/jetherson-arceo-152.png",
+			"sizes": "152x152",
+			"type": "image/png"
+		},
+		{
+			"src": "https://jetherson.com/jet/jetherson-arceo-192.png",
+			"sizes": "192x192",
+			"type": "image/png"
+		},
+		{
+			"src": "https://jetherson.com/jet/jetherson-arceo-256.png",
+			"sizes": "256x256",
+			"type": "image/png"
+		},
+		{
+			"src": "https://jetherson.com/jet/jetherson-arceo-512.png",
+			"sizes": "512x512",
+			"type": "image/png"
+		}
+	]
+}
